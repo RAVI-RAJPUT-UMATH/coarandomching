@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+{% from "_icons.html" import icon %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1d42">
+
+  <title>{% block title %}{{ page_title or settings.site_name }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ settings.meta_description }}{% endblock %}">
+
+  <!-- Open Graph (used when the page is shared on WhatsApp / Facebook) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ settings.site_name }}">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="{{ self.description() }}">
+  <meta property="og:image" content="{{ (settings.hero_image or '') | media }}">
+  <meta property="og:url" content="{{ request.url }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="{{ request.base_url }}">
+
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.svg') }}" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&family=Caveat:wght@600;700&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+{% if settings.announcement and settings.announcement_active == '1' %}
+  <div class="announce">{{ icon('sparkle', 16) }} <span>{{ settings.announcement }}</span></div>
+{% endif %}
+
+<header class="nav" id="siteNav">
+  <div class="container nav__inner">
+    <a class="brand" href="{{ url_for('index') }}">
+      <span class="brand__mark">
+        {% if settings.logo %}<img src="{{ settings.logo | media }}" alt="{{ settings.site_name }} logo">
+        {% else %}{{ icon('cap', 24) }}{% endif %}
+      </span>
+      <span class="brand__text">
+        JK CLASSES
+        <span>BARNAGAR</span>
+      </span>
+    </a>
+
+    {% set nav_items = [
+      ('Home', url_for('index')),
+      ('Results', url_for('results_page')),
+      ('Services', url_for('services_page')),
+      ('Gallery', url_for('gallery_page')),
+      ('Events', url_for('events_page')),
+      ('Contact', url_for('contact_page'))
+    ] %}
+
+    <nav class="nav__links" aria-label="Main menu">
+      {% for label, href in nav_items %}
+        <a href="{{ href }}" {% if current_path == href %}class="is-active" aria-current="page"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
+
+    <div class="nav__cta">
+      <a class="btn btn--gold btn--sm" href="{{ url_for('contact_page') }}">Enroll Now</a>
+    </div>
+
+    <button class="nav__toggle" id="navToggle" aria-expanded="false" aria-controls="navMobile" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <nav class="nav__mobile" id="navMobile" hidden aria-label="Mobile menu">
+    {% for label, href in nav_items %}
+      <a href="{{ href }}" {% if current_path == href %}class="is-active"{% endif %}>
+        {{ label }} {{ icon('arrow', 16) }}
+      </a>
+    {% endfor %}
+    <a class="btn btn--gold" href="{{ url_for('contact_page') }}">Enroll Now</a>
+  </nav>
+</header>
+
+<main id="main">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container" style="padding-top:22px">
+        <div class="flashes">
+          {% for category, message in messages %}
+            <div class="flash flash--{{ 'error' if category == 'error' else 'success' }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+
+      <div>
+        <div class="footer__brand">
+          <span class="brand__mark">
+            {% if settings.logo %}<img src="{{ settings.logo | media }}" alt="">
+            {% else %}{{ icon('cap', 22) }}{% endif %}
+          </span>
+          <span>
+            <strong>JK CLASSES</strong>
+            <small>BARNAGAR</small>
+          </span>
+        </div>
+        <p>{{ settings.site_tagline }}</p>
+        <div class="socials">
+          {% if settings.social_instagram %}
+            <a href="{{ settings.social_instagram }}" target="_blank" rel="noopener" class="s-ig" aria-label="Instagram" title="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.8.07 1.2.05 1.8.25 2.2.42.6.22 1 .48 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c0 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2 0-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c0-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 3.3a6.5 6.5 0 100 13 6.5 6.5 0 000-13zm0 10.7a4.2 4.2 0 110-8.4 4.2 4.2 0 010 8.4zm6.8-11a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>
+            </a>
+          {% endif %}
+          {% if settings.social_facebook %}
+            <a href="{{ settings.social_facebook }}" target="_blank" rel="noopener" class="s-fb" aria-label="Facebook" title="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.1h-3.1V8.9c0-.9.25-1.5 1.55-1.5h1.65V4.6c-.29-.04-1.27-.12-2.41-.12-2.39 0-4.03 1.46-4.03 4.14v2.28H7.6V14h2.65v8h3.25z"/></svg>
+            </a>
+          {% endif %}
+          {% if settings.social_youtube %}
+            <a href="{{ settings.social_youtube }}" target="_blank" rel="noopener" class="s-yt" aria-label="YouTube" title="YouTube">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.6 7.2c-.23-.86-.9-1.53-1.76-1.76C18.28 5 12 5 12 5s-6.28 0-7.84.44c-.86.23-1.53.9-1.76 1.76C2 8.76 2 12 2 12s0 3.24.4 4.8c.23.86.9 1.53 1.76 1.76C5.72 19 12 19 12 19s6.28 0 7.84-.44c.86-.23 1.53-.9 1.76-1.76.4-1.56.4-4.8.4-4.8s0-3.24-.4-4.8zM10 15V9l5.2 3-5.2 3z"/></svg>
+            </a>
+          {% endif %}
+          {% if settings.whatsapp_number %}
+            <a href="https://wa.me/91{{ settings.whatsapp_number }}" target="_blank" rel="noopener" class="s-wa" aria-label="WhatsApp" title="WhatsApp">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.6-1.1-4.3-3.8-4.4-4-.1-.2-1-1.4-1-2.6s.6-1.8.9-2.1c.2-.2.5-.3.6-.3h.5c.2 0 .4 0 .5.4l.7 1.8c.1.1.1.3 0 .5l-.3.4-.3.3c-.1.1-.2.3-.1.5.1.2.6 1 1.3 1.6.9.8 1.6 1 1.8 1.1.2.1.4.1.5-.1l.7-.8c.2-.2.3-.2.5-.1l1.7.8c.2.1.4.2.4.3.1.2.1.6-.1 1.1z"/></svg>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div>
+        <h4>Quick Links</h4>
+        <div class="footer__links">
+          {% for label, href in nav_items %}<a href="{{ href }}">{{ label }}</a>{% endfor %}
+        </div>
+      </div>
+
+      <div>
+        <h4>Contact Info</h4>
+        <div class="footer__links">
+          <span>{{ icon('pin', 17) }} {{ settings.contact_address }}</span>
+          <a href="tel:{{ settings.contact_phone_1 }}">{{ icon('phone', 17) }} {{ settings.contact_phone_1 }}{% if settings.contact_phone_2 %}, {{ settings.contact_phone_2 }}{% endif %}</a>
+          <a href="mailto:{{ settings.contact_email }}">{{ icon('mail', 17) }} {{ settings.contact_email }}</a>
+          <span>{{ icon('clock', 17) }} {{ settings.contact_hours }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <span>&copy; {{ now_year }} {{ settings.site_name }}. All Rights Reserved.
+        &nbsp;&middot;&nbsp; <a href="{{ url_for('admin_login') }}">Admin</a></span>
+      <span>Designed with <span class="heart">&#10084;</span> for Better Education</span>
+    </div>
+  </div>
+</footer>
+
+<div class="float-actions">
+  {% if settings.whatsapp_number %}
+    <a class="wa" href="https://wa.me/91{{ settings.whatsapp_number }}?text=Hello%20JK%20Classes%2C%20I%20want%20to%20know%20about%20admission"
+       target="_blank" rel="noopener" aria-label="Chat on WhatsApp" title="Chat on WhatsApp">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.6-1.1-4.3-3.8-4.4-4-.1-.2-1-1.4-1-2.6s.6-1.8.9-2.1c.2-.2.5-.3.6-.3h.5c.2 0 .4 0 .5.4l.7 1.8c.1.1.1.3 0 .5l-.3.4-.3.3c-.1.1-.2.3-.1.5.1.2.6 1 1.3 1.6.9.8 1.6 1 1.8 1.1.2.1.4.1.5-.1l.7-.8c.2-.2.3-.2.5-.1l1.7.8c.2.1.4.2.4.3.1.2.1.6-.1 1.1z"/></svg>
+    </a>
+  {% endif %}
+  <a class="call" href="tel:{{ settings.contact_phone_1 }}" aria-label="Call us" title="Call us">
+    {{ icon('phone', 22) }}
+  </a>
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

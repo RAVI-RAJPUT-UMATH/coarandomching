@@ -1,0 +1,182 @@
+{% extends "admin/base.html" %}
+{% block heading %}Homepage Content{% endblock %}
+
+{% block content %}
+
+<div class="help">
+  This page controls the words and pictures on your home page. Change anything you like and press
+  <em>Save Homepage</em> at the bottom.
+</div>
+
+<form method="post" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <!-- ------------------------------------------------------------ hero -->
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Top Banner (Hero)</h2>
+      <p>The large blue section that visitors see first.</p>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="hero_heading">Heading</label>
+        <input type="text" id="hero_heading" name="hero_heading" value="{{ settings.hero_heading }}" maxlength="80">
+      </div>
+      <div class="field">
+        <label for="hero_highlight">Highlighted Word <span class="hint">Shown in yellow, on its own line.</span></label>
+        <input type="text" id="hero_highlight" name="hero_highlight" value="{{ settings.hero_highlight }}" maxlength="40">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="hero_subheading">Sub Heading</label>
+      <textarea id="hero_subheading" name="hero_subheading" maxlength="400" style="min-height:80px">{{ settings.hero_subheading }}</textarea>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="hero_btn_text">Button 1 Text</label>
+        <input type="text" id="hero_btn_text" name="hero_btn_text" value="{{ settings.hero_btn_text }}" maxlength="40">
+      </div>
+      <div class="field">
+        <label for="hero_btn_link">Button 1 Link</label>
+        <input type="text" id="hero_btn_link" name="hero_btn_link" value="{{ settings.hero_btn_link }}" maxlength="200">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="hero_btn2_text">Button 2 Text <span class="hint">Leave empty to hide it.</span></label>
+        <input type="text" id="hero_btn2_text" name="hero_btn2_text" value="{{ settings.hero_btn2_text }}" maxlength="40">
+      </div>
+      <div class="field">
+        <label for="hero_btn2_link">Button 2 Link</label>
+        <input type="text" id="hero_btn2_link" name="hero_btn2_link" value="{{ settings.hero_btn2_link }}" maxlength="200">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="hero_image">Background Photo <span class="hint">A wide photo of your students or centre works best.</span></label>
+      <input type="file" id="hero_image" name="hero_image" accept=".jpg,.jpeg,.png,.webp" data-preview="heroPreview">
+      <div class="preview" id="heroPreview" hidden><img alt="Preview"><span></span></div>
+      {% if settings.hero_image %}
+        <div class="preview">
+          <img src="{{ settings.hero_image | media }}" alt="Current hero photo">
+          <label class="check" style="font-size:.85rem">
+            <input type="checkbox" name="remove_hero_image" value="1"> Remove this photo
+          </label>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- --------------------------------------------------- highlight strip -->
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Four Highlights</h2>
+      <p>The small white boxes just below the banner.</p>
+    </div>
+    {% for i in range(1, 5) %}
+      <div class="field-row">
+        <div class="field">
+          <label for="highlight_{{ i }}_title">Highlight {{ i }} - Title</label>
+          <input type="text" id="highlight_{{ i }}_title" name="highlight_{{ i }}_title"
+                 value="{{ settings['highlight_' ~ i ~ '_title'] }}" maxlength="40">
+        </div>
+        <div class="field">
+          <label for="highlight_{{ i }}_text">Highlight {{ i }} - Small Text</label>
+          <input type="text" id="highlight_{{ i }}_text" name="highlight_{{ i }}_text"
+                 value="{{ settings['highlight_' ~ i ~ '_text'] }}" maxlength="40">
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- ----------------------------------------------------------- about -->
+  <div class="panel">
+    <div class="panel__head">
+      <h2>About Us Section</h2>
+    </div>
+
+    <div class="field">
+      <label for="about_title">About Title</label>
+      <input type="text" id="about_title" name="about_title" value="{{ settings.about_title }}" maxlength="100">
+    </div>
+
+    <div class="field">
+      <label for="about_text">About Description</label>
+      <textarea id="about_text" name="about_text" maxlength="1200">{{ settings.about_text }}</textarea>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="about_quote">Quote <span class="hint">Leave empty to hide the quote box.</span></label>
+        <input type="text" id="about_quote" name="about_quote" value="{{ settings.about_quote }}" maxlength="200">
+      </div>
+      <div class="field">
+        <label for="about_quote_by">Quote By</label>
+        <input type="text" id="about_quote_by" name="about_quote_by" value="{{ settings.about_quote_by }}" maxlength="80">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="about_image">About Photo</label>
+      <input type="file" id="about_image" name="about_image" accept=".jpg,.jpeg,.png,.webp" data-preview="aboutPreview">
+      <div class="preview" id="aboutPreview" hidden><img alt="Preview"><span></span></div>
+      {% if settings.about_image %}
+        <div class="preview">
+          <img src="{{ settings.about_image | media }}" alt="Current about photo">
+          <label class="check" style="font-size:.85rem">
+            <input type="checkbox" name="remove_about_image" value="1"> Remove this photo
+          </label>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ----------------------------------------------------------- stats -->
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Numbers Strip</h2>
+      <p>The four numbers on the dark blue band (years of experience, students, and so on).</p>
+    </div>
+    {% for i in range(1, 5) %}
+      <div class="field-row">
+        <div class="field">
+          <label for="stat_{{ i }}_value">Number {{ i }}</label>
+          <input type="text" id="stat_{{ i }}_value" name="stat_{{ i }}_value"
+                 value="{{ settings['stat_' ~ i ~ '_value'] }}" maxlength="20">
+        </div>
+        <div class="field">
+          <label for="stat_{{ i }}_label">Number {{ i }} - Label</label>
+          <input type="text" id="stat_{{ i }}_label" name="stat_{{ i }}_label"
+                 value="{{ settings['stat_' ~ i ~ '_label'] }}" maxlength="40">
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- --------------------------------------------------- results banner -->
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Results Banner</h2>
+      <p>The heading shown at the top of the Results page.</p>
+    </div>
+    <div class="field">
+      <label for="results_heading">Results Heading</label>
+      <input type="text" id="results_heading" name="results_heading" value="{{ settings.results_heading }}" maxlength="120">
+    </div>
+    <div class="field">
+      <label for="results_subheading">Results Sub Heading</label>
+      <input type="text" id="results_subheading" name="results_subheading" value="{{ settings.results_subheading }}" maxlength="120">
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-bottom:30px">
+    <button class="btn btn--primary" type="submit">Save Homepage</button>
+    <a class="btn btn--light" href="{{ url_for('index') }}" target="_blank" rel="noopener">Preview Website</a>
+  </div>
+</form>
+
+{% endblock %}

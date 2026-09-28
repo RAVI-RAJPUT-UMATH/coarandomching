@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{{ page_title or 'JK Classes Admin' }}</title>
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+{% set menu = [
+  ('Dashboard',    url_for('admin_dashboard'), '&#127968;'),
+  ('Homepage',     url_for('admin_homepage'),  '&#128221;'),
+  ('Results',      url_for('admin_results'),   '&#127942;'),
+  ('Gallery',      url_for('admin_gallery'),   '&#128247;'),
+  ('Events',       url_for('admin_events'),    '&#128197;'),
+  ('Services',     url_for('admin_services'),  '&#128218;'),
+  ('Faculty',      url_for('admin_faculty'),   '&#128104;&#8205;&#127979;'),
+  ('Contact Info', url_for('admin_contact'),   '&#128222;'),
+  ('Social Media', url_for('admin_social'),    '&#127760;'),
+  ('Messages',     url_for('admin_messages'),  '&#9993;'),
+  ('Settings',     url_for('admin_settings'),  '&#9881;')
+] %}
+
+<div class="admin-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <span>&#127891;</span>
+      <span>
+        <strong>JK CLASSES</strong>
+        <small>Admin Panel</small>
+      </span>
+    </div>
+
+    <div class="sidebar__group">Manage</div>
+    {% for label, href, icon in menu %}
+      <a href="{{ href }}" {% if current_path == href %}class="is-active"{% endif %}>
+        <span class="ic">{{ icon | safe }}</span> {{ label }}
+      </a>
+    {% endfor %}
+
+    <div class="sidebar__group">Website</div>
+    <a href="{{ url_for('index') }}" target="_blank" rel="noopener"><span class="ic">&#128279;</span> View Website</a>
+    <a href="{{ url_for('admin_logout') }}"><span class="ic">&#128682;</span> Logout</a>
+  </aside>
+
+  <div class="scrim" id="scrim"></div>
+
+  <div class="admin-main">
+    <header class="topbar">
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <h1>{% block heading %}{{ page_title }}{% endblock %}</h1>
+      <span class="topbar__user">Logged in as <strong>{{ session.admin_name }}</strong></span>
+      <a class="btn btn--light btn--sm" href="{{ url_for('index') }}" target="_blank" rel="noopener">View Site</a>
+    </header>
+
+    <div class="admin-body">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flashes">
+            {% for category, message in messages %}
+              <div class="flash flash--{{ 'error' if category == 'error' else 'success' }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/admin.js') }}" defer></script>
+</body>
+</html>

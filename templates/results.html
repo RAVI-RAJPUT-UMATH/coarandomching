@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block description %}Student results of {{ settings.site_name }} - see the marks and achievements of our toppers.{% endblock %}
+
+{% macro result_card(r, top=False) %}
+  <article class="result-card reveal {% if top %}result-card--top{% endif %}">
+    {% if r.achievement %}
+      <span class="ribbon">{{ icon('crown', 11) }} {{ r.achievement }}</span>
+    {% endif %}
+    <div class="result-card__media">
+      <img src="{{ r.photo | media }}" alt="{{ r.name }}" loading="lazy">
+    </div>
+    <div class="result-card__body">
+      <h3>{{ r.name }}</h3>
+      <span class="pct">{{ r.percentage }}</span>
+      {% if r.class_name or r.year %}
+        <p class="meta">{{ r.class_name }}{% if r.class_name and r.year %} &middot; {% endif %}{{ r.year }}</p>
+      {% endif %}
+    </div>
+  </article>
+{% endmacro %}
+
+{% block content %}
+
+<!-- navy results banner -->
+<section class="results-showcase">
+  <div class="results-showcase__head results-showcase__head--page">
+    <div class="container">
+      <div>
+        <span class="label">Our Students, Our Results.</span>
+        <h1>{{ settings.results_heading }}</h1>
+        {% if settings.results_subheading %}
+          <span class="tag">{{ icon('crown', 17) }} {{ settings.results_subheading }}</span>
+        {% endif %}
+      </div>
+      <div class="results-showcase__aside">
+        <span class="results-showcase__trophy">{{ icon('trophy', 64, 1.4) }}</span>
+        <p class="results-showcase__script">Hard Work Today,<br>A Brighter Tomorrow.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    {% if featured %}
+      <div class="section-head reveal">
+        <span class="eyebrow">Top Achievers</span>
+        <h2>Our Star Performers</h2>
+      </div>
+      <div class="results-page-grid {% if featured | length < 4 %}results-page-grid--few{% endif %}"
+           style="margin-bottom:clamp(44px,6vw,72px)">
+        {% for r in featured %}{{ result_card(r, top=True) }}{% endfor %}
+      </div>
+    {% endif %}
+
+    {% if others %}
+      <div class="section-head reveal">
+        <span class="eyebrow">Results</span>
+        <h2>All Student Results</h2>
+        <p>{{ total }} student result{{ '' if total == 1 else 's' }} published.</p>
+      </div>
+      <div class="results-page-grid {% if others | length < 4 %}results-page-grid--few{% endif %}">
+        {% for r in others %}{{ result_card(r) }}{% endfor %}
+      </div>
+    {% endif %}
+
+    {% if not featured and not others %}
+      <div class="empty">Results will be published here soon.</div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="cta-band reveal">
+      <h2>Your Name Could Be Next</h2>
+      <p>Join our board batches and get the preparation, practice and personal guidance
+         that these results are built on.</p>
+      <div class="btn-row">
+        <a class="btn btn--gold" href="{{ url_for('contact_page') }}">Enroll Now {{ icon('arrow', 17) }}</a>
+        <a class="btn btn--ghost" href="tel:{{ settings.contact_phone_1 }}">
+          {{ icon('phone', 17) }} {{ settings.contact_phone_1 }}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

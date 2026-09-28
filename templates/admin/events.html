@@ -1,0 +1,129 @@
+{% extends "admin/base.html" %}
+{% block heading %}Events{% endblock %}
+
+{% block content %}
+
+<div class="help">
+  <strong>Tip:</strong> mark an event as <em>Upcoming</em> while it is still to happen. Upcoming events
+  are shown first on the website. Change it to <em>Completed</em> afterwards.
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2 id="formTitle">Add Event</h2>
+    <p>Only the title is required.</p>
+  </div>
+
+  <form method="post" action="{{ url_for('admin_events_save') }}" enctype="multipart/form-data" data-edit-form>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="id" id="f_id" value="">
+
+    <div class="field">
+      <label for="f_title">Event Title *</label>
+      <input type="text" id="f_title" name="title" required maxlength="120" placeholder="e.g. New Batch Starting">
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_event_date">Event Date</label>
+        <input type="date" id="f_event_date" name="event_date">
+      </div>
+      <div class="field">
+        <label for="f_status">Status</label>
+        <select id="f_status" name="status">
+          <option value="upcoming">Upcoming</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f_location">Location <span class="hint">Optional.</span></label>
+      <input type="text" id="f_location" name="location" maxlength="120" placeholder="e.g. JK Classes Barnagar">
+    </div>
+
+    <div class="field">
+      <label for="f_description">Description</label>
+      <textarea id="f_description" name="description" maxlength="1200"
+                placeholder="What is this event about?"></textarea>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_button_text">Button Text
+          <span class="hint">Optional. Leave empty to hide the button.</span>
+        </label>
+        <input type="text" id="f_button_text" name="button_text" maxlength="40" placeholder="e.g. Book a Seat">
+      </div>
+      <div class="field">
+        <label for="f_button_link">Button Link</label>
+        <input type="text" id="f_button_link" name="button_link" maxlength="200" placeholder="/contact">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f_image">Event Photo
+        <span class="hint">Leave empty to keep the current photo while editing.</span>
+      </label>
+      <input type="file" id="f_image" name="image" accept=".jpg,.jpeg,.png,.webp" data-preview="eventPreview">
+      <div class="preview" id="eventPreview" hidden><img alt="Preview"><span></span></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn--primary" type="submit">Save Event</button>
+      <button class="btn btn--light" type="reset" data-cancel-edit hidden>Cancel Edit</button>
+    </div>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2>All Events ({{ events | length }})</h2>
+  </div>
+
+  {% if events %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Photo</th><th>Event</th><th>Date</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for e in events %}
+            <tr>
+              <td><img class="thumb" src="{{ e.image | media }}" alt="{{ e.title }}"></td>
+              <td>
+                <strong>{{ e.title }}</strong>
+                {% if e.location %}<div style="color:var(--a-muted);font-size:.85rem">{{ e.location }}</div>{% endif %}
+              </td>
+              <td>{{ e.event_date or '-' }}</td>
+              <td>
+                <span class="pill {{ 'pill--upcoming' if e.status == 'upcoming' else 'pill--done' }}">
+                  {{ 'Upcoming' if e.status == 'upcoming' else 'Completed' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn--light btn--sm" type="button" data-edit='{{ {
+                      "id": e.id, "title": e.title, "event_date": e.event_date,
+                      "description": e.description, "location": e.location,
+                      "button_text": e.button_text, "button_link": e.button_link,
+                      "status": e.status
+                    } | tojson }}'>Edit</button>
+                  <form method="post" action="{{ url_for('admin_events_delete', event_id=e.id) }}"
+                        data-confirm="Delete the event &quot;{{ e.title }}&quot;? This cannot be undone.">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn--danger btn--sm" type="submit">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">No events yet. Add your first event using the form above.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

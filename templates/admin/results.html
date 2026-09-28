@@ -1,0 +1,127 @@
+{% extends "admin/base.html" %}
+{% block heading %}Student Results{% endblock %}
+
+{% block content %}
+
+<div class="help">
+  <strong>How to add a result:</strong> fill in the student's name and percentage, choose their photo,
+  then press <em>Save Result</em>. To change something later, press <em>Edit</em> in the table below.
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2 id="formTitle">Add Result</h2>
+    <p>Fields marked * are required. Everything else is optional.</p>
+  </div>
+
+  <form method="post" action="{{ url_for('admin_results_save') }}" enctype="multipart/form-data" data-edit-form>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="id" id="f_id" value="">
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_name">Student Name *</label>
+        <input type="text" id="f_name" name="name" required maxlength="80" placeholder="e.g. Suraj Doraya">
+      </div>
+      <div class="field">
+        <label for="f_percentage">Percentage *</label>
+        <input type="text" id="f_percentage" name="percentage" required maxlength="20" placeholder="e.g. 94%">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_class_name">Class</label>
+        <input type="text" id="f_class_name" name="class_name" maxlength="40" placeholder="e.g. Class 10th">
+      </div>
+      <div class="field">
+        <label for="f_year">Year</label>
+        <input type="text" id="f_year" name="year" maxlength="20" placeholder="e.g. 2025-26">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_achievement">Achievement / Title
+          <span class="hint">Shown as a golden ribbon on the photo. Leave empty if there is none.</span>
+        </label>
+        <input type="text" id="f_achievement" name="achievement" maxlength="50" placeholder="e.g. Tehsil Topper">
+      </div>
+      <div class="field">
+        <label for="f_sort_order">Display Order
+          <span class="hint">Smaller number shows first. Leave 0 if unsure.</span>
+        </label>
+        <input type="number" id="f_sort_order" name="sort_order" value="0" min="0" max="999">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f_photo">Student Photo
+        <span class="hint">JPG, PNG or WEBP, up to 8 MB. Leave empty to keep the current photo while editing.</span>
+      </label>
+      <input type="file" id="f_photo" name="photo" accept=".jpg,.jpeg,.png,.webp" data-preview="photoPreview">
+      <div class="preview" id="photoPreview" hidden><img alt="Preview"><span></span></div>
+    </div>
+
+    <div class="field">
+      <label class="check">
+        <input type="checkbox" name="featured" id="f_featured" value="1">
+        Show this student in the "Top Achievers" section
+      </label>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn--primary" type="submit">Save Result</button>
+      <button class="btn btn--light" type="reset" data-cancel-edit hidden>Cancel Edit</button>
+    </div>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2>All Results ({{ results | length }})</h2>
+    <p>These are shown on your Results page and on the home page.</p>
+  </div>
+
+  {% if results %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Photo</th><th>Student</th><th>Percentage</th><th>Class / Year</th><th>Achievement</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for r in results %}
+            <tr>
+              <td><img class="thumb" src="{{ r.photo | media }}" alt="{{ r.name }}"></td>
+              <td>
+                <strong>{{ r.name }}</strong>
+                {% if r.featured %}<div><span class="pill pill--gold">Top Achiever</span></div>{% endif %}
+              </td>
+              <td><strong>{{ r.percentage }}</strong></td>
+              <td>{{ r.class_name }}{% if r.class_name and r.year %}<br>{% endif %}{{ r.year }}</td>
+              <td>{{ r.achievement or '-' }}</td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn--light btn--sm" type="button" data-edit='{{ {
+                      "id": r.id, "name": r.name, "percentage": r.percentage,
+                      "achievement": r.achievement, "class_name": r.class_name,
+                      "year": r.year, "sort_order": r.sort_order, "featured": r.featured
+                    } | tojson }}'>Edit</button>
+                  <form method="post" action="{{ url_for('admin_results_delete', result_id=r.id) }}"
+                        data-confirm="Delete the result of {{ r.name }}? This cannot be undone.">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn--danger btn--sm" type="submit">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">No results added yet. Use the form above to add your first one.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "admin/base.html" %}
+{% block heading %}Contact Information{% endblock %}
+
+{% block content %}
+
+<div class="help">
+  Whatever you type here appears on your Contact page, in the footer of every page and on the
+  call / WhatsApp buttons. Change the phone number once here and it changes everywhere.
+</div>
+
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Address &amp; Timings</h2>
+    </div>
+
+    <div class="field">
+      <label for="contact_address">Address</label>
+      <textarea id="contact_address" name="contact_address" maxlength="300" style="min-height:80px">{{ settings.contact_address }}</textarea>
+    </div>
+
+    <div class="field">
+      <label for="contact_hours">Opening Hours</label>
+      <input type="text" id="contact_hours" name="contact_hours" value="{{ settings.contact_hours }}" maxlength="120">
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Phone &amp; Email</h2>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="contact_phone_1">Phone Number 1</label>
+        <input type="text" id="contact_phone_1" name="contact_phone_1" value="{{ settings.contact_phone_1 }}" maxlength="20">
+      </div>
+      <div class="field">
+        <label for="contact_phone_2">Phone Number 2 <span class="hint">Optional.</span></label>
+        <input type="text" id="contact_phone_2" name="contact_phone_2" value="{{ settings.contact_phone_2 }}" maxlength="20">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="contact_email">Email Address</label>
+        <input type="email" id="contact_email" name="contact_email" value="{{ settings.contact_email }}" maxlength="120">
+      </div>
+      <div class="field">
+        <label for="whatsapp_number">WhatsApp Number
+          <span class="hint">10 digits only, without +91. Used by the green WhatsApp button.</span>
+        </label>
+        <input type="text" id="whatsapp_number" name="whatsapp_number" value="{{ settings.whatsapp_number }}" maxlength="15">
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Google Map</h2>
+      <p>
+        To change the map: open Google Maps, search your coaching, press <em>Share</em> &rarr;
+        <em>Embed a map</em> &rarr; <em>Copy HTML</em>, and paste only the link that appears
+        inside <code>src="..."</code>. If you are unsure, leave this as it is.
+      </p>
+    </div>
+    <div class="field">
+      <label for="map_embed">Map Link <span class="hint">Leave empty to hide the map.</span></label>
+      <input type="text" id="map_embed" name="map_embed" value="{{ settings.map_embed }}" maxlength="600">
+    </div>
+    {% if settings.map_embed %}
+      <iframe src="{{ settings.map_embed }}" title="Map preview" loading="lazy"
+              style="width:100%;height:220px;border:1px solid var(--a-line);border-radius:10px"></iframe>
+    {% endif %}
+  </div>
+
+  <div class="btn-row" style="margin-bottom:30px">
+    <button class="btn btn--primary" type="submit">Save Contact Information</button>
+    <a class="btn btn--light" href="{{ url_for('contact_page') }}" target="_blank" rel="noopener">Preview Contact Page</a>
+  </div>
+</form>
+
+{% endblock %}

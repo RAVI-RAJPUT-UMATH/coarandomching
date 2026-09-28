@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block description %}Upcoming and recent events at {{ settings.site_name }} - new batches, test series and celebrations.{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <span class="eyebrow">What's Happening</span>
+    <h1>Events</h1>
+    <p>New batch launches, test series, celebrations and everything else happening at our centre.</p>
+  </div>
+</section>
+
+{% macro event_card(e) %}
+  <article class="card event-card reveal">
+    <div class="card__media">
+      <img src="{{ e.image | media }}" alt="{{ e.title }}" loading="lazy">
+      {% if e.event_date %}
+        <span class="event-date">
+          <strong>{{ e.event_date | day }}</strong>
+          <span>{{ e.event_date | monthyear }}</span>
+        </span>
+      {% endif %}
+    </div>
+    <div class="card__body">
+      <span class="badge {{ 'badge--upcoming' if e.status == 'upcoming' else 'badge--done' }}">
+        {{ 'Upcoming' if e.status == 'upcoming' else 'Completed' }}
+      </span>
+      <h3 style="margin-top:14px;font-size:1.15rem">{{ e.title }}</h3>
+      <div class="event-meta">
+        {% if e.event_date %}<span>{{ icon('calendar', 17) }} {{ e.event_date }}</span>{% endif %}
+        {% if e.location %}<span>{{ icon('pin', 17) }} {{ e.location }}</span>{% endif %}
+      </div>
+      {% if e.description %}<p class="card__text">{{ e.description }}</p>{% endif %}
+      {% if e.button_text %}
+        <div class="mt-auto">
+          <a class="btn btn--gold btn--sm" href="{{ e.button_link or url_for('contact_page') }}">{{ e.button_text }}</a>
+        </div>
+      {% endif %}
+    </div>
+  </article>
+{% endmacro %}
+
+<section class="section">
+  <div class="container">
+    {% if upcoming %}
+      <div class="section-head reveal">
+        <span class="eyebrow">Coming Up</span>
+        <h2>Upcoming Events</h2>
+      </div>
+      <div class="grid grid--3 {% if upcoming | length < 3 %}grid--few{% endif %}"
+           style="margin-bottom:clamp(48px,7vw,80px)">
+        {% for e in upcoming %}{{ event_card(e) }}{% endfor %}
+      </div>
+    {% endif %}
+
+    {% if completed %}
+      <div class="section-head reveal">
+        <span class="eyebrow">Memories</span>
+        <h2>Past Events</h2>
+      </div>
+      <div class="grid grid--3 {% if completed | length < 3 %}grid--few{% endif %}">
+        {% for e in completed %}{{ event_card(e) }}{% endfor %}
+      </div>
+    {% endif %}
+
+    {% if not upcoming and not completed %}
+      <div class="empty">No events have been added yet. Please check back soon.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

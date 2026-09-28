@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% block heading %}Enquiry Messages{% endblock %}
+
+{% block content %}
+
+<div class="help">
+  These are the messages people sent using the contact form on your website.
+  Call or email them back from here.
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2>All Messages ({{ messages | length }})</h2>
+  </div>
+
+  {% if messages %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Received</th><th>Name</th><th>Contact</th><th>Message</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for m in messages %}
+            <tr>
+              <td style="white-space:nowrap">{{ m.created_at[:16] }}</td>
+              <td><strong>{{ m.first_name }} {{ m.last_name }}</strong></td>
+              <td>
+                {% if m.phone %}<div><a href="tel:{{ m.phone }}">{{ m.phone }}</a></div>{% endif %}
+                {% if m.email %}<div><a href="mailto:{{ m.email }}">{{ m.email }}</a></div>{% endif %}
+                {% if not m.phone and not m.email %}-{% endif %}
+              </td>
+              <td style="min-width:240px">{{ m.message }}</td>
+              <td>
+                <form method="post" action="{{ url_for('admin_messages_delete', message_id=m.id) }}"
+                      data-confirm="Delete this message? This cannot be undone.">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn--danger btn--sm" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">No messages yet. Enquiries from your contact form will appear here.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

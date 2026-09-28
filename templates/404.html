@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section" style="text-align:center">
+  <div class="container">
+    <span class="eyebrow">Error 404</span>
+    <h1>This page could not be found</h1>
+    <p style="max-width:48ch;margin-inline:auto">
+      The page you are looking for may have been moved or removed. Let's get you back on track.
+    </p>
+    <p style="margin-top:26px">
+      <a class="btn btn--gold" href="{{ url_for('index') }}">Back to Home</a>
+      <a class="btn btn--outline" href="{{ url_for('contact_page') }}">Contact Us</a>
+    </p>
+  </div>
+</section>
+{% endblock %}

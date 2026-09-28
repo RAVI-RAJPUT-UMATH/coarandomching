@@ -1,0 +1,83 @@
+{% extends "admin/base.html" %}
+{% block heading %}Photo Gallery{% endblock %}
+
+{% block content %}
+
+<div class="help">
+  <strong>How to add photos:</strong> press <em>Choose Photos</em>, select one or many pictures from your phone
+  or computer, type a caption, pick a category and press <em>Upload</em>. That is all.
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2>Add Photos</h2>
+    <p>You can select several photos at once. JPG, PNG or WEBP, up to 8 MB each.</p>
+  </div>
+
+  <form method="post" action="{{ url_for('admin_gallery_upload') }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="field">
+      <label for="g_photos">Choose Photos *</label>
+      <input type="file" id="g_photos" name="photos" accept=".jpg,.jpeg,.png,.webp" multiple required
+             data-preview="galleryPreview">
+      <div class="preview" id="galleryPreview" hidden><img alt="Preview"><span></span></div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="g_title">Caption
+          <span class="hint">Shown under the photo. The same caption is used for all photos selected now.</span>
+        </label>
+        <input type="text" id="g_title" name="title" maxlength="100" placeholder="e.g. Classroom session">
+      </div>
+      <div class="field">
+        <label for="g_category">Category</label>
+        <select id="g_category" name="category">
+          {% for c in gallery_categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <button class="btn btn--primary" type="submit">Upload</button>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2>All Photos ({{ photos | length }})</h2>
+    <p>Change a caption or category and press Save on that photo. Press Delete to remove it from the website.</p>
+  </div>
+
+  {% if photos %}
+    <div class="photo-grid">
+      {% for p in photos %}
+        <div class="photo-card">
+          <img src="{{ p.photo | media }}" alt="{{ p.title or 'Gallery photo' }}" loading="lazy">
+          <div class="photo-card__body">
+            <form method="post" action="{{ url_for('admin_gallery_update', photo_id=p.id) }}" style="display:grid;gap:8px">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="text" name="title" value="{{ p.title }}" maxlength="100" placeholder="Caption"
+                     aria-label="Caption for photo {{ p.id }}">
+              <select name="category" aria-label="Category for photo {{ p.id }}">
+                {% for c in gallery_categories %}
+                  <option value="{{ c }}" {% if p.category == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+              </select>
+              <button class="btn btn--light btn--sm btn--block" type="submit">Save</button>
+            </form>
+            <form method="post" action="{{ url_for('admin_gallery_delete', photo_id=p.id) }}"
+                  data-confirm="Delete this photo? This cannot be undone.">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn--danger btn--sm btn--block" type="submit">Delete</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">No photos yet. Use the form above to upload your first photos.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

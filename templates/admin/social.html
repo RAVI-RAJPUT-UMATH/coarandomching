@@ -1,0 +1,54 @@
+{% extends "admin/base.html" %}
+{% block heading %}Social Media Links{% endblock %}
+
+{% block content %}
+
+<div class="help">
+  Paste the full web address of each page, starting with <strong>https://</strong>.
+  Leave a box empty and that icon will simply not appear on the website.
+</div>
+
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Your Pages</h2>
+    </div>
+
+    <div class="field">
+      <label for="social_instagram">Instagram</label>
+      <input type="url" id="social_instagram" name="social_instagram"
+             value="{{ settings.social_instagram }}" maxlength="300"
+             placeholder="https://www.instagram.com/officialjkclasses">
+    </div>
+
+    <div class="field">
+      <label for="social_facebook">Facebook</label>
+      <input type="url" id="social_facebook" name="social_facebook"
+             value="{{ settings.social_facebook }}" maxlength="300"
+             placeholder="https://www.facebook.com/yourpage">
+    </div>
+
+    <div class="field">
+      <label for="social_youtube">YouTube</label>
+      <input type="url" id="social_youtube" name="social_youtube"
+             value="{{ settings.social_youtube }}" maxlength="300"
+             placeholder="https://www.youtube.com/@yourchannel">
+    </div>
+
+    <div class="field">
+      <label for="whatsapp_number">WhatsApp Number
+        <span class="hint">10 digits, without +91. This also controls the floating green button.</span>
+      </label>
+      <input type="text" id="whatsapp_number" name="whatsapp_number"
+             value="{{ settings.whatsapp_number }}" maxlength="15" placeholder="7489755479">
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-bottom:30px">
+    <button class="btn btn--primary" type="submit">Save Social Links</button>
+  </div>
+</form>
+
+{% endblock %}

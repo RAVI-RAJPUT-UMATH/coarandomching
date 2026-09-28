@@ -1,0 +1,58 @@
+{#
+  Small inline SVG icon set.
+
+  Used as:   {% from "_icons.html" import icon %}   then   {{ icon('phone') }}
+
+  Inline SVG keeps the site fast (no icon font or extra request) and the icons
+  take their colour from the surrounding text, so they work on white and on navy.
+#}
+
+{%- macro icon(name, size=24, stroke=1.8) -%}
+<svg class="icon" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="{{ stroke }}" stroke-linecap="round" stroke-linejoin="round"
+     aria-hidden="true" focusable="false">
+  {%- if name == 'book' -%}
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+  {%- elif name == 'teacher' -%}
+    <path d="M17 21v-1.8a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V21"/><circle cx="9.5" cy="7" r="3.5"/><path d="M19 3h3v6h-3z"/><path d="M16 12h6"/>
+  {%- elif name == 'chart' -%}
+    <path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/><path d="M19 8h-3m3 0v3"/>
+  {%- elif name == 'care' -%}
+    <path d="M16 21v-1.8a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V21"/><circle cx="9" cy="7" r="3.5"/><path d="m16.5 10.5 2 2 4-4"/>
+  {%- elif name == 'target' -%}
+    <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>
+  {%- elif name == 'clipboard' -%}
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1.2"/><path d="m9 14 2 2 4-4"/>
+  {%- elif name == 'chat' -%}
+    <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/>
+  {%- elif name == 'group' -%}
+    <circle cx="9" cy="8" r="3.2"/><circle cx="17.5" cy="9.5" r="2.3"/><path d="M2.5 20v-1a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v1"/><path d="M17 14.5h.5a4 4 0 0 1 4 4V20"/>
+  {%- elif name == 'calendar' -%}
+    <rect x="3" y="5" width="18" height="16" rx="2.4"/><path d="M16 3v4M8 3v4M3 10.5h18"/>
+  {%- elif name == 'pin' -%}
+    <path d="M21 10.5c0 6.5-9 11.5-9 11.5s-9-5-9-11.5a9 9 0 0 1 18 0z"/><circle cx="12" cy="10.2" r="3"/>
+  {%- elif name == 'phone' -%}
+    <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/>
+  {%- elif name == 'clock' -%}
+    <circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 1.9"/>
+  {%- elif name == 'mail' -%}
+    <rect x="2" y="4.5" width="20" height="15" rx="2.4"/><path d="m2.5 7.5 9.5 6 9.5-6"/>
+  {%- elif name == 'trophy' -%}
+    <path d="M8 21h8M12 17.2V21M7 4h10v4.8a5 5 0 0 1-10 0V4z"/><path d="M17 5.5h3V8a3 3 0 0 1-3 3M7 5.5H4V8a3 3 0 0 0 3 3"/>
+  {%- elif name == 'crown' -%}
+    <path d="M3 7.5 7.2 11 12 4.5 16.8 11 21 7.5V18H3V7.5z"/><path d="M3 20.5h18"/>
+  {%- elif name == 'check' -%}
+    <path d="m5 12.5 4.5 4.5L19 7.5"/>
+  {%- elif name == 'arrow' -%}
+    <path d="M4 12h15M13 6l6 6-6 6"/>
+  {%- elif name == 'play' -%}
+    <circle cx="12" cy="12" r="9.2"/><path d="M10 8.4 16 12l-6 3.6V8.4z" fill="currentColor" stroke="none"/>
+  {%- elif name == 'play-solid' -%}
+    <path d="M8 5.2 19 12 8 18.8V5.2z" fill="currentColor" stroke="none"/>
+  {%- elif name == 'sparkle' -%}
+    <path d="M12 3.5 13.8 9l5.7 1.8-5.7 1.8L12 18.2l-1.8-5.6L4.5 10.8 10.2 9 12 3.5z"/>
+  {%- elif name == 'cap' -%}
+    <path d="M12 4 2.5 8.5 12 13l9.5-4.5L12 4z"/><path d="M6 10.6V15c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.4"/><path d="M21.5 8.5V14"/>
+  {%- endif -%}
+</svg>
+{%- endmacro -%}

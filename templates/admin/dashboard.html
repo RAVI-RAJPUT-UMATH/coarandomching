@@ -1,0 +1,92 @@
+{% extends "admin/base.html" %}
+{% block heading %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="help">
+  <strong>Welcome!</strong> Everything on your website can be changed from this panel.
+  Pick a section on the left, fill in the form and press Save. Your website updates immediately.
+</div>
+
+<div class="stat-grid">
+  <a class="stat-card" href="{{ url_for('admin_results') }}">
+    <strong>{{ counts.results }}</strong><span>Results</span>
+  </a>
+  <a class="stat-card" href="{{ url_for('admin_gallery') }}">
+    <strong>{{ counts.gallery }}</strong><span>Gallery Photos</span>
+  </a>
+  <a class="stat-card" href="{{ url_for('admin_events') }}">
+    <strong>{{ counts.events }}</strong><span>Events</span>
+  </a>
+  <a class="stat-card" href="{{ url_for('admin_services') }}">
+    <strong>{{ counts.services }}</strong><span>Services</span>
+  </a>
+  <a class="stat-card" href="{{ url_for('admin_faculty') }}">
+    <strong>{{ counts.faculty }}</strong><span>Faculty</span>
+  </a>
+  <a class="stat-card" href="{{ url_for('admin_messages') }}">
+    <strong>{{ counts.messages }}</strong><span>New Messages</span>
+  </a>
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2>Add Something New</h2>
+    <p>The most common tasks, one click away.</p>
+  </div>
+  <div class="quick-grid">
+    <a class="btn btn--gold btn--block" href="{{ url_for('admin_results') }}">&#10133; Add Result</a>
+    <a class="btn btn--gold btn--block" href="{{ url_for('admin_gallery') }}">&#10133; Add Gallery Photo</a>
+    <a class="btn btn--gold btn--block" href="{{ url_for('admin_events') }}">&#10133; Add Event</a>
+    <a class="btn btn--gold btn--block" href="{{ url_for('admin_services') }}">&#10133; Add Service</a>
+    <a class="btn btn--gold btn--block" href="{{ url_for('admin_faculty') }}">&#10133; Add Faculty</a>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2>Change Website Text</h2>
+    <p>Edit the words and pictures that visitors see on the home page and contact page.</p>
+  </div>
+  <div class="btn-row">
+    <a class="btn btn--light" href="{{ url_for('admin_homepage') }}">Homepage Content</a>
+    <a class="btn btn--light" href="{{ url_for('admin_contact') }}">Contact Information</a>
+    <a class="btn btn--light" href="{{ url_for('admin_social') }}">Social Media Links</a>
+    <a class="btn btn--light" href="{{ url_for('admin_settings') }}">Announcement &amp; Password</a>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2>Latest Enquiries</h2>
+    <p>Messages sent through the contact form on your website.</p>
+  </div>
+
+  {% if recent_messages %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Contact</th><th>Message</th><th>Received</th></tr>
+        </thead>
+        <tbody>
+          {% for m in recent_messages %}
+            <tr>
+              <td><strong>{{ m.first_name }} {{ m.last_name }}</strong></td>
+              <td>
+                {% if m.phone %}<div>{{ m.phone }}</div>{% endif %}
+                {% if m.email %}<div>{{ m.email }}</div>{% endif %}
+              </td>
+              <td>{{ m.message | truncate(80) }}</td>
+              <td>{{ m.created_at[:16] }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px"><a class="btn btn--light btn--sm" href="{{ url_for('admin_messages') }}">See all messages</a></p>
+  {% else %}
+    <div class="empty">No enquiries yet. Messages from your contact form will appear here.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

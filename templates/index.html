@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+
+{% block content %}
+
+<!-- ============================================================== hero -->
+<section class="hero">
+  <div class="hero__media">
+    <img src="{{ hero_bg }}" alt="Students at {{ settings.site_name }}" fetchpriority="high">
+  </div>
+  <div class="container">
+   <div class="hero__inner">
+    <h1>{{ settings.hero_heading }} <em>{{ settings.hero_highlight }}</em></h1>
+    <p>{{ settings.hero_subheading }}</p>
+
+    <div class="hero__actions">
+      {% if settings.hero_btn_text %}
+        <a class="btn btn--gold" href="{{ settings.hero_btn_link or '#' }}">
+          {{ settings.hero_btn_text }} {{ icon('arrow', 17) }}
+        </a>
+      {% endif %}
+      {% if settings.hero_btn2_text %}
+        <a class="btn btn--plain" href="{{ settings.hero_btn2_link or '#' }}">
+          <span class="btn__play">{{ icon('play-solid', 14) }}</span>
+          {{ settings.hero_btn2_text }}
+        </a>
+      {% endif %}
+    </div>
+
+    <!-- key numbers, editable from Admin > Homepage -->
+    <div class="hero__stats">
+      {% set stat_icons = ['cap', 'group', 'trophy', 'teacher'] %}
+      {% for i in range(1, 5) %}
+        {% if settings['stat_' ~ i ~ '_value'] %}
+          <div class="hero-stat">
+            {{ icon(stat_icons[i-1], 26) }}
+            <span>
+              <strong>{{ settings['stat_' ~ i ~ '_value'] }}</strong>
+              <span>{{ settings['stat_' ~ i ~ '_label'] }}</span>
+            </span>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+   </div>
+  </div>
+</section>
+
+<!-- =================================================== highlights strip -->
+<div class="highlights-band">
+  <div class="container" style="padding-block:clamp(18px,3vw,26px)">
+    <div class="highlights">
+      {% set highlight_icons = ['book', 'teacher', 'chart', 'care'] %}
+      {% for i in range(1, 5) %}
+        <div class="highlight">
+          <span class="highlight__icon">{{ icon(highlight_icons[i-1], 22) }}</span>
+          <span>
+            <strong>{{ settings['highlight_' ~ i ~ '_title'] }}</strong>
+            <span>{{ settings['highlight_' ~ i ~ '_text'] }}</span>
+          </span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================= about -->
+<section class="section">
+  <div class="container about reveal">
+    <div>
+      <span class="label label--chip">About Us</span>
+      <h2>{{ settings.about_title }}</h2>
+      <p>{{ settings.about_text }}</p>
+      {% if settings.about_quote %}
+        <blockquote class="quote">
+          <p>{{ settings.about_quote }}</p>
+          <cite>&ndash; {{ settings.about_quote_by }}</cite>
+        </blockquote>
+      {% endif %}
+    </div>
+    <div class="about__media">
+      <div class="about__img">
+        <img src="{{ settings.about_image | media }}" alt="{{ settings.site_name }}" loading="lazy">
+      </div>
+      <div class="about__badge">
+        {{ icon('cap', 24) }}
+        <span>
+          <span>Building</span>
+          <span>Bright Futures</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================================================== results showcase -->
+{% if results %}
+<section class="results-showcase">
+
+  <div class="results-showcase__head">
+    <div class="container">
+      <div>
+        <span class="label">Our Students, Our Results.</span>
+        <h2>{{ settings.results_heading }}</h2>
+        {% if settings.results_subheading %}
+          <span class="tag">{{ icon('crown', 17) }} {{ settings.results_subheading }}</span>
+        {% endif %}
+      </div>
+      <div class="results-showcase__aside">
+        <span class="results-showcase__trophy">{{ icon('trophy', 64, 1.4) }}</span>
+        <p class="results-showcase__script">Hard Work Today,<br>A Brighter Tomorrow.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="results-showcase__strip">
+    <div class="container">
+      <div class="results-strip">
+        {% for r in results %}
+          <article class="result-card reveal {% if r.featured %}result-card--top{% endif %}">
+            {% if r.achievement %}
+              <span class="ribbon">{{ icon('crown', 11) }} {{ r.achievement }}</span>
+            {% endif %}
+            <div class="result-card__media">
+              <img src="{{ r.photo | media }}" alt="{{ r.name }}" loading="lazy">
+            </div>
+            <div class="result-card__body">
+              <h3>{{ r.name }}</h3>
+              <span class="pct">{{ r.percentage }}</span>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+      <div class="results-actions">
+        <a class="btn btn--gold btn--sm" href="{{ url_for('results_page') }}">
+          View All Results {{ icon('arrow', 16) }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+</section>
+{% endif %}
+
+<!-- ========================================================== services -->
+{% if services %}
+<section class="section">
+  <div class="container">
+    <div class="section-bar reveal">
+      <div class="section-bar__text">
+        <span class="label">Our Services</span>
+        <h2>What We Offer</h2>
+        <p>Comprehensive coaching programs designed for academic success.</p>
+      </div>
+    </div>
+
+    <div class="grid grid--4">
+      {% for s in services %}
+        <article class="card service-card card--badged reveal">
+          <div class="card__media">
+            <img src="{{ s.image | media }}" alt="{{ s.title }}" loading="lazy">
+            <span class="card__badge">{{ icon('cap', 16) }}</span>
+          </div>
+          <div class="card__body">
+            <h3>{{ s.title }}</h3>
+            {% if s.subtitle %}<p class="card__sub">{{ s.subtitle }}</p>{% endif %}
+            <div class="mt-auto">
+              <a class="btn btn--gold btn--xs" href="{{ s.button_link or url_for('contact_page') }}">
+                {{ s.button_text or 'Learn More' }} {{ icon('arrow', 14) }}
+              </a>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- =========================================================== faculty -->
+{% if faculty %}
+<section class="section section--wash">
+  <span class="watermark">{{ icon('cap', 190, 1) }}</span>
+  <div class="container">
+    <div class="section-bar reveal">
+      <div class="section-bar__text">
+        <h2>Meet Our Faculty</h2>
+        <p>Guiding students with experience, knowledge and dedication.</p>
+      </div>
+    </div>
+
+    <div class="grid grid--2">
+      {% for f in faculty %}
+        <article class="faculty-card reveal">
+          <div class="faculty-card__media">
+            <img src="{{ f.photo | media }}" alt="{{ f.name }}" loading="lazy">
+          </div>
+          <div class="faculty-card__body">
+            {% if f.role %}<span class="role">{{ f.role }}</span>{% endif %}
+            <h3>{{ f.name }}</h3>
+            {% if f.bio %}<p class="bio">{{ f.bio | truncate(70) }}</p>{% endif %}
+            {% if f.qualifications %}
+              <ul class="dotlist">
+                {% for q in f.qualifications | lines %}<li>{{ q }}</li>{% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============================================================ events -->
+{% if events %}
+<section class="section">
+  <div class="container">
+    <div class="section-bar reveal">
+      <div class="section-bar__text">
+        <h2>Latest Events</h2>
+        <p>Stay updated with our latest activities and achievements.</p>
+      </div>
+      <a class="btn btn--gold btn--sm" href="{{ url_for('events_page') }}">
+        View All Events {{ icon('arrow', 16) }}
+      </a>
+    </div>
+
+    <div class="grid grid--3">
+      {% for e in events %}
+        <article class="card event-card reveal">
+          <div class="card__media">
+            <img src="{{ e.image | media }}" alt="{{ e.title }}" loading="lazy">
+            {% if e.event_date %}
+              <span class="event-date">
+                <strong>{{ e.event_date | day }}</strong>
+                <span>{{ e.event_date | monthyear }}</span>
+              </span>
+            {% endif %}
+          </div>
+          <div class="card__body">
+            <h3>{{ e.title }}</h3>
+            {% if e.description %}<p class="card__text">{{ e.description | truncate(95) }}</p>{% endif %}
+            <div class="mt-auto">
+              <a class="link-gold" href="{{ e.button_link or url_for('events_page') }}">
+                {{ e.button_text or 'View Details' }} {{ icon('arrow', 15) }}
+              </a>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- =========================================================== gallery -->
+{% if gallery %}
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section-bar reveal">
+      <div class="section-bar__text">
+        <h2>Life at JK Classes</h2>
+        <p>Some photos of our coaching. We are continuously working for you.</p>
+      </div>
+      <a class="btn btn--gold btn--sm" href="{{ url_for('gallery_page') }}">
+        View Full Gallery {{ icon('arrow', 16) }}
+      </a>
+    </div>
+
+    <div class="gallery-strip" id="homeGallery">
+      {% for g in gallery %}
+        <figure class="gallery-item" role="button" tabindex="0"
+                data-full="{{ g.photo | media }}" data-caption="{{ g.title }}">
+          <img src="{{ g.photo | media }}" alt="{{ g.title or 'JK Classes photo' }}" loading="lazy">
+          {% if g.title %}<figcaption>{{ g.title }}</figcaption>{% endif %}
+        </figure>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- =============================================================== CTA -->
+<section class="cta-split">
+  <div class="container" style="padding-inline:0">
+    <div class="cta-split__grid">
+      <div class="cta-split__media">
+        <img src="{{ hero_bg }}" alt="Students at {{ settings.site_name }}" loading="lazy">
+      </div>
+      <div class="cta-split__body">
+        <h2>Ready to Start Your Journey?</h2>
+        <p>Admissions are open. Secure your seat today.</p>
+        <div class="btn-row">
+          <a class="btn btn--gold" href="{{ url_for('contact_page') }}">Enroll Now</a>
+          <a class="btn btn--ghost" href="tel:{{ settings.contact_phone_1 }}">
+            {{ icon('phone', 17) }} Call Us
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

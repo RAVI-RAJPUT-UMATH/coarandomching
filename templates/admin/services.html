@@ -1,0 +1,119 @@
+{% extends "admin/base.html" %}
+{% block heading %}Services &amp; Courses{% endblock %}
+
+{% block content %}
+
+<div class="help">
+  <strong>Tip:</strong> in the <em>Points</em> box, write one point on each line. Each line becomes a
+  tick mark on the website.
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2 id="formTitle">Add Service</h2>
+    <p>Only the title is required.</p>
+  </div>
+
+  <form method="post" action="{{ url_for('admin_services_save') }}" enctype="multipart/form-data" data-edit-form>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="id" id="f_id" value="">
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_title">Service Title *</label>
+        <input type="text" id="f_title" name="title" required maxlength="100" placeholder="e.g. Admission Open">
+      </div>
+      <div class="field">
+        <label for="f_subtitle">Subtitle</label>
+        <input type="text" id="f_subtitle" name="subtitle" maxlength="120" placeholder="e.g. 6th to 12th - All Subjects">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f_description">Short Description</label>
+      <textarea id="f_description" name="description" maxlength="600" style="min-height:80px"
+                placeholder="One or two sentences about this course."></textarea>
+    </div>
+
+    <div class="field">
+      <label for="f_points">Points <span class="hint">Write one point per line.</span></label>
+      <textarea id="f_points" name="points" maxlength="1200"
+                placeholder="Upto 12th - Science, Humanities and Commerce&#10;Class 10th Special Batch&#10;Class 12th Special Batch"></textarea>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_button_text">Button Text</label>
+        <input type="text" id="f_button_text" name="button_text" maxlength="40" placeholder="e.g. Get a Quote">
+      </div>
+      <div class="field">
+        <label for="f_button_link">Button Link</label>
+        <input type="text" id="f_button_link" name="button_link" maxlength="200" placeholder="/contact">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_image">Photo <span class="hint">Optional. Leave empty to keep the current one.</span></label>
+        <input type="file" id="f_image" name="image" accept=".jpg,.jpeg,.png,.webp" data-preview="servicePreview">
+        <div class="preview" id="servicePreview" hidden><img alt="Preview"><span></span></div>
+      </div>
+      <div class="field">
+        <label for="f_sort_order">Display Order <span class="hint">Smaller number shows first.</span></label>
+        <input type="number" id="f_sort_order" name="sort_order" value="0" min="0" max="999">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn--primary" type="submit">Save Service</button>
+      <button class="btn btn--light" type="reset" data-cancel-edit hidden>Cancel Edit</button>
+    </div>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2>All Services ({{ services | length }})</h2>
+  </div>
+
+  {% if services %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Order</th><th>Service</th><th>Points</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for s in services %}
+            <tr>
+              <td>{{ s.sort_order }}</td>
+              <td>
+                <strong>{{ s.title }}</strong>
+                {% if s.subtitle %}<div style="color:var(--a-muted);font-size:.85rem">{{ s.subtitle }}</div>{% endif %}
+              </td>
+              <td>{{ s.points | lines | length }} point(s)</td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn--light btn--sm" type="button" data-edit='{{ {
+                      "id": s.id, "title": s.title, "subtitle": s.subtitle,
+                      "description": s.description, "points": s.points,
+                      "button_text": s.button_text, "button_link": s.button_link,
+                      "sort_order": s.sort_order
+                    } | tojson }}'>Edit</button>
+                  <form method="post" action="{{ url_for('admin_services_delete', service_id=s.id) }}"
+                        data-confirm="Delete the service &quot;{{ s.title }}&quot;? This cannot be undone.">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn--danger btn--sm" type="submit">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">No services yet. Add your first course using the form above.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

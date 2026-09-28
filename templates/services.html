@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block description %}Courses and batches at {{ settings.site_name }} - class 6th to 12th, board special batches and JNVST preparation.{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <span class="eyebrow">What We Offer</span>
+    <h1>Our Services</h1>
+    <p>Batches designed around the board syllabus, with the practice and personal attention
+       that real results need.</p>
+  </div>
+</section>
+
+<section class="section section--tint">
+  <div class="container">
+    {% if services %}
+      <div class="grid grid--3">
+        {% for s in services %}
+          <article class="card reveal">
+            {% if s.image %}
+              <div class="card__media"><img src="{{ s.image | media }}" alt="{{ s.title }}" loading="lazy"></div>
+            {% endif %}
+            <div class="card__body">
+              <h3>{{ s.title }}</h3>
+              {% if s.subtitle %}<p class="card__sub">{{ s.subtitle }}</p>{% endif %}
+              {% if s.description %}<p class="card__text">{{ s.description }}</p>{% endif %}
+              {% if s.points %}
+                <ul class="ticklist">
+                  {% for point in s.points | lines %}<li>{{ point }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+              <div class="mt-auto">
+                <a class="btn btn--gold btn--sm btn--block" href="{{ s.button_link or url_for('contact_page') }}">
+                  {{ s.button_text or 'Get a Quote' }}
+                </a>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">Our course details will be published here soon.</div>
+    {% endif %}
+  </div>
+</section>
+
+{% if faculty %}
+<section class="section section--wash">
+  <span class="watermark">{{ icon('cap', 190, 1) }}</span>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Leadership</span>
+      <h2>Director &amp; Faculty</h2>
+      <p>The teachers who plan every batch and guide every student personally.</p>
+    </div>
+    <div class="grid grid--2">
+      {% for f in faculty %}
+        <article class="faculty-card reveal">
+          <div class="faculty-card__media">
+            <img src="{{ f.photo | media }}" alt="{{ f.name }}" loading="lazy">
+          </div>
+          <div class="faculty-card__body">
+            {% if f.role %}<span class="role">{{ f.role }}</span>{% endif %}
+            <h3>{{ f.name }}</h3>
+            {% if f.bio %}<p class="bio">{{ f.bio }}</p>{% endif %}
+            {% if f.qualifications %}
+              <ul class="dotlist">
+                {% for q in f.qualifications | lines %}<li>{{ q }}</li>{% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="cta-band reveal">
+      <h2>Have a Question?</h2>
+      <p>Contact us today for answers to all your questions. We are here to help you
+         choose the right batch.</p>
+      <div class="btn-row">
+        <a class="btn btn--gold" href="{{ url_for('contact_page') }}">Contact Us {{ icon('arrow', 18) }}</a>
+        {% if settings.whatsapp_number %}
+          <a class="btn btn--ghost" href="https://wa.me/91{{ settings.whatsapp_number }}"
+             target="_blank" rel="noopener">WhatsApp Us</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

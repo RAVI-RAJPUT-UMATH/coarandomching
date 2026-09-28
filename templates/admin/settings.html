@@ -1,0 +1,109 @@
+{% extends "admin/base.html" %}
+{% block heading %}Settings{% endblock %}
+
+{% block content %}
+
+<!-- ------------------------------------------------------- site settings -->
+<form method="post" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="_checkboxes" value="announcement_active">
+
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Website Name &amp; Logo</h2>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="site_name">Website Name</label>
+        <input type="text" id="site_name" name="site_name" value="{{ settings.site_name }}" maxlength="80">
+      </div>
+      <div class="field">
+        <label for="site_tagline">Tagline <span class="hint">A short line shown in the footer.</span></label>
+        <input type="text" id="site_tagline" name="site_tagline" value="{{ settings.site_tagline }}" maxlength="120">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="logo">Logo <span class="hint">A small square image works best.</span></label>
+      <input type="file" id="logo" name="logo" accept=".jpg,.jpeg,.png,.webp" data-preview="logoPreview">
+      <div class="preview" id="logoPreview" hidden><img alt="Preview"><span></span></div>
+      {% if settings.logo %}
+        <div class="preview">
+          <img src="{{ settings.logo | media }}" alt="Current logo">
+          <label class="check" style="font-size:.85rem">
+            <input type="checkbox" name="remove_logo" value="1"> Remove this logo
+          </label>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Announcement Bar</h2>
+      <p>The thin dark strip at the very top of every page. Good for admission notices.</p>
+    </div>
+
+    <div class="field">
+      <label for="announcement">Announcement Text</label>
+      <input type="text" id="announcement" name="announcement" value="{{ settings.announcement }}" maxlength="200">
+    </div>
+
+    <div class="field">
+      <label class="check">
+        <input type="checkbox" name="announcement_active" value="1"
+               {% if settings.announcement_active == '1' %}checked{% endif %}>
+        Show the announcement bar on the website
+      </label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__head">
+      <h2>Search Engine Description</h2>
+      <p>The sentence Google shows under your website name. Keep it under about 160 characters.</p>
+    </div>
+    <div class="field">
+      <label for="meta_description">Description</label>
+      <textarea id="meta_description" name="meta_description" maxlength="300" style="min-height:80px">{{ settings.meta_description }}</textarea>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-bottom:30px">
+    <button class="btn btn--primary" type="submit">Save Settings</button>
+  </div>
+</form>
+
+<!-- ------------------------------------------------------ password change -->
+<div class="panel">
+  <div class="panel__head">
+    <h2>Change Your Password</h2>
+    <p>You are logged in as <strong>{{ admin.username }}</strong>. Choose a password you will remember.</p>
+  </div>
+
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="form" value="password">
+
+    <div class="field">
+      <label for="current_password">Current Password</label>
+      <input type="password" id="current_password" name="current_password" autocomplete="current-password" required>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="new_password">New Password <span class="hint">At least 6 characters.</span></label>
+        <input type="password" id="new_password" name="new_password" autocomplete="new-password" required minlength="6">
+      </div>
+      <div class="field">
+        <label for="confirm_password">Repeat New Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required minlength="6">
+      </div>
+    </div>
+
+    <button class="btn btn--primary" type="submit">Change Password</button>
+  </form>
+</div>
+
+{% endblock %}

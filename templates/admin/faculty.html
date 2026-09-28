@@ -1,0 +1,105 @@
+{% extends "admin/base.html" %}
+{% block heading %}Faculty &amp; Directors{% endblock %}
+
+{% block content %}
+
+<div class="help">
+  <strong>Tip:</strong> in the <em>Qualifications</em> box write one qualification per line
+  (for example BSc, then MSc Zoology, then BEd). Each line becomes a small tag on the website.
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2 id="formTitle">Add Faculty Member</h2>
+    <p>Only the name is required.</p>
+  </div>
+
+  <form method="post" action="{{ url_for('admin_faculty_save') }}" enctype="multipart/form-data" data-edit-form>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="id" id="f_id" value="">
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_name">Name *</label>
+        <input type="text" id="f_name" name="name" required maxlength="80" placeholder="e.g. Jitendra Kumar Verma">
+      </div>
+      <div class="field">
+        <label for="f_role">Role / Designation</label>
+        <input type="text" id="f_role" name="role" maxlength="60" placeholder="e.g. Director">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f_qualifications">Qualifications <span class="hint">One per line.</span></label>
+      <textarea id="f_qualifications" name="qualifications" maxlength="500"
+                placeholder="BSc&#10;MSc Zoology&#10;BEd&#10;MA English"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="f_bio">Short Introduction <span class="hint">Optional.</span></label>
+      <textarea id="f_bio" name="bio" maxlength="600" style="min-height:80px"
+                placeholder="A line or two about this teacher."></textarea>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_photo">Photo <span class="hint">Leave empty to keep the current photo.</span></label>
+        <input type="file" id="f_photo" name="photo" accept=".jpg,.jpeg,.png,.webp" data-preview="facultyPreview">
+        <div class="preview" id="facultyPreview" hidden><img alt="Preview"><span></span></div>
+      </div>
+      <div class="field">
+        <label for="f_sort_order">Display Order <span class="hint">Smaller number shows first.</span></label>
+        <input type="number" id="f_sort_order" name="sort_order" value="0" min="0" max="999">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn--primary" type="submit">Save Faculty Member</button>
+      <button class="btn btn--light" type="reset" data-cancel-edit hidden>Cancel Edit</button>
+    </div>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="panel__head">
+    <h2>All Faculty ({{ faculty | length }})</h2>
+  </div>
+
+  {% if faculty %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Photo</th><th>Name</th><th>Role</th><th>Qualifications</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for f in faculty %}
+            <tr>
+              <td><img class="thumb" src="{{ f.photo | media }}" alt="{{ f.name }}"></td>
+              <td><strong>{{ f.name }}</strong></td>
+              <td>{{ f.role or '-' }}</td>
+              <td>{{ f.qualifications | lines | join(', ') or '-' }}</td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn--light btn--sm" type="button" data-edit='{{ {
+                      "id": f.id, "name": f.name, "role": f.role,
+                      "qualifications": f.qualifications, "bio": f.bio,
+                      "sort_order": f.sort_order
+                    } | tojson }}'>Edit</button>
+                  <form method="post" action="{{ url_for('admin_faculty_delete', faculty_id=f.id) }}"
+                        data-confirm="Remove {{ f.name }} from the website? This cannot be undone.">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn--danger btn--sm" type="submit">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">No faculty members yet. Add the director and teachers using the form above.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

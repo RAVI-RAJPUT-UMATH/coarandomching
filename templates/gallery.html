@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block description %}Photos from {{ settings.site_name }} - classrooms, events, students and campus.{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <span class="eyebrow">Life at JK Classes</span>
+    <h1>Gallery</h1>
+    <p>Some photos of our coaching. We are continuously working for you &mdash;
+       shine your future with {{ settings.site_name }}.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if photos %}
+      {% if categories %}
+        <div class="filters" role="group" aria-label="Filter photos by category">
+          <button class="filter is-active" data-filter="all" type="button">All</button>
+          {% for c in categories %}
+            <button class="filter" data-filter="{{ c }}" type="button">{{ c }}</button>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="gallery-grid" id="galleryGrid">
+        {% for g in photos %}
+          <figure class="gallery-item" role="button" tabindex="0"
+                  data-category="{{ g.category }}"
+                  data-full="{{ g.photo | media }}"
+                  data-caption="{{ g.title }}">
+            <img src="{{ g.photo | media }}" alt="{{ g.title or 'JK Classes photo' }}" loading="lazy">
+            {% if g.title %}<figcaption>{{ g.title }}</figcaption>{% endif %}
+          </figure>
+        {% endfor %}
+      </div>
+      <p id="galleryEmpty" class="empty" hidden>No photos in this category yet.</p>
+    {% else %}
+      <div class="empty">Photos will be added here soon.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
