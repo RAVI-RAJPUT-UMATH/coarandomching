@@ -24,14 +24,14 @@ No React, no build step, no Docker. Two dependencies in total.
 
 **Keep the black window open** while using the site. Closing it stops the website.
 
-## Logging in
+<!-- ## Logging in
 
 Go to **http://127.0.0.1:5000/admin/login**
 
 | | |
 |---|---|
 | Username | `admin` |
-| Password | `jkclasses123` |
+| Password | `jkclasses123` | -->
 
 > ⚠️ **Change this password now.** It is written in this file, so anyone who
 > reads it knows your password. Go to **Settings → Change Your Password**.
