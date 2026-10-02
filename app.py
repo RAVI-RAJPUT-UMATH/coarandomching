@@ -30,7 +30,10 @@ app = Flask(__name__)
 # SECRET_KEY keeps the login session secure. On a real server set it as an
 # environment variable so it stays the same between restarts.
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or "jk-classes-barnagar-dev-key"
-app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "uploads")
+if os.environ.get("VERCEL"):
+    app.config["UPLOAD_FOLDER"] = "/tmp/uploads"
+else:
+    app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024          # 8 MB per upload
 app.config["ADMIN_USERNAME"] = os.environ.get("ADMIN_USERNAME", "admin")
 app.config["ADMIN_PASSWORD"] = os.environ.get("ADMIN_PASSWORD", "jkclasses123")
