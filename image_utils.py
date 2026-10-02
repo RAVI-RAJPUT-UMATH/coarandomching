@@ -1,14 +1,15 @@
 """
-Image upload handling.
+Image upload handling for JK Classes Barnagar.
 
-Every uploaded picture is checked (type + size), given a unique name and
-stored in the `uploads/` folder. Only the file name goes into the database.
-If Pillow is installed the image is also resized down so pages stay fast;
-if it is not installed everything still works, the file is just saved as-is.
+Uploaded images are validated, resized when possible, and stored
+permanently in Vercel Blob when running on Vercel.
+
+For local development, images are stored in the local uploads/ folder.
 """
 
 import os
 import secrets
+import tempfile
 
 from flask import current_app
 from werkzeug.utils import secure_filename
@@ -16,12 +17,15 @@ from werkzeug.utils import secure_filename
 try:
     from PIL import Image
     HAS_PILLOW = True
-except ImportError:                     # Pillow is optional
+except ImportError:
     HAS_PILLOW = False
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "gif"}
-MAX_WIDTH = 1600                        # uploaded photos are shrunk to this width
-MAX_BYTES = 8 * 1024 * 1024             # 8 MB
+
+# Keep this below Vercel's 4.5 MB server request limit.
+MAX_BYTES = 3 * 1024 * 1024
+
+MAX_WIDTH = 1600
 
 
 def _extension(filename):
@@ -34,57 +38,172 @@ def is_allowed(filename):
 
 def save_upload(file_storage):
     """
-    Save one uploaded file and return its stored file name.
-    Returns "" when nothing was chosen or the file is not a valid image.
+    Validate and save an uploaded image.
+
+    On Vercel:
+        Uploads the image to Vercel Blob and returns its public URL.
+
+    Locally:
+        Saves the image inside the local uploads/ folder and returns
+        the local filename.
     """
+
     if not file_storage or not file_storage.filename:
         return ""
 
-    if not is_allowed(file_storage.filename):
+    original_filename = file_storage.filename
+
+    if not is_allowed(original_filename):
         return ""
 
-    # Size check without loading the whole file into memory.
+    # Check file size.
     file_storage.stream.seek(0, os.SEEK_END)
     size = file_storage.stream.tell()
     file_storage.stream.seek(0)
+
     if size == 0 or size > MAX_BYTES:
         return ""
 
-    ext = _extension(file_storage.filename)
-    safe_stem = secure_filename(file_storage.filename.rsplit(".", 1)[0])[:40] or "photo"
+    ext = _extension(original_filename)
+
+    safe_stem = (
+        secure_filename(original_filename.rsplit(".", 1)[0])[:40]
+        or "photo"
+    )
+
     filename = f"{safe_stem}-{secrets.token_hex(6)}.{ext}"
-    path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+
+    # ---------------------------------------------------------
+    # VERCEL
+    # ---------------------------------------------------------
+    if os.environ.get("VERCEL"):
+        return _upload_to_vercel_blob(
+            file_storage,
+            filename,
+            ext
+        )
+
+    # ---------------------------------------------------------
+    # LOCAL DEVELOPMENT
+    # ---------------------------------------------------------
+    upload_folder = current_app.config["UPLOAD_FOLDER"]
+
+    os.makedirs(upload_folder, exist_ok=True)
+
+    path = os.path.join(upload_folder, filename)
 
     file_storage.save(path)
+
     _optimise(path, ext)
+
     return filename
 
 
+def _upload_to_vercel_blob(file_storage, filename, ext):
+    """
+    Upload image to Vercel Blob and return the public URL.
+    """
+
+    # Save temporarily because the Python Blob SDK accepts bytes/file data.
+    temp_path = os.path.join(
+        tempfile.gettempdir(),
+        filename
+    )
+
+    try:
+        file_storage.save(temp_path)
+
+        # Import only when running on Vercel.
+        from vercel.blob import BlobClient
+
+        with open(temp_path, "rb") as f:
+            file_data = f.read()
+
+        client = BlobClient()
+
+        blob = client.put(
+            f"gallery/{filename}",
+            file_data,
+            access="public",
+            content_type=file_storage.mimetype or f"image/{ext}",
+            add_random_suffix=False,
+        )
+
+        return blob.url
+
+    finally:
+        try:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+        except OSError:
+            pass
+
+
 def _optimise(path, ext):
-    """Shrink very large photos so the website loads quickly on mobile data."""
+    """
+    Shrink very large photos so the website loads quickly.
+    """
+
     if not HAS_PILLOW or ext == "gif":
         return
+
     try:
         with Image.open(path) as img:
+
             if img.width <= MAX_WIDTH:
                 return
+
             ratio = MAX_WIDTH / float(img.width)
-            resized = img.resize((MAX_WIDTH, int(img.height * ratio)), Image.LANCZOS)
+
+            resized = img.resize(
+                (
+                    MAX_WIDTH,
+                    int(img.height * ratio)
+                ),
+                Image.LANCZOS
+            )
+
             if ext in ("jpg", "jpeg"):
                 resized = resized.convert("RGB")
-                resized.save(path, quality=85, optimize=True)
+                resized.save(
+                    path,
+                    quality=85,
+                    optimize=True
+                )
             else:
-                resized.save(path, optimize=True)
+                resized.save(
+                    path,
+                    optimize=True
+                )
+
     except Exception:
-        # A picture we cannot process is still perfectly usable as uploaded.
+        # Keep original image if optimization fails.
         pass
 
 
 def delete_upload(filename):
-    """Remove an uploaded file from disk. Silently ignores anything missing."""
+    """
+    Delete an uploaded image.
+
+    Local files are deleted from disk.
+
+    Vercel Blob files are intentionally not deleted here yet because
+    the database currently stores the returned Blob URL rather than
+    a local filename.
+    """
+
     if not filename:
         return
-    path = os.path.join(current_app.config["UPLOAD_FOLDER"], os.path.basename(filename))
+
+    # Vercel Blob URLs should not be treated as local files.
+    if filename.startswith("http://") or filename.startswith("https://"):
+        return
+
+    path = os.path.join(
+        current_app.config["UPLOAD_FOLDER"],
+        os.path.basename(filename)
+    )
+
     try:
         if os.path.isfile(path):
             os.remove(path)
