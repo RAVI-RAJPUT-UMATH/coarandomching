@@ -15,10 +15,7 @@ from flask import g
 from werkzeug.security import generate_password_hash
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-if os.environ.get("VERCEL"):
-    DB_PATH = "/tmp/database.db"
-else:
-    DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.path.join(BASE_DIR, "database.db")
 
 
 # ---------------------------------------------------------------- connection
