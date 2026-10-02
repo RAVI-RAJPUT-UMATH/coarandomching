@@ -1,10 +1,8 @@
 """
-Image upload handling for JK Classes Barnagar.
+Image upload handling.
 
-Uploaded images are validated, resized when possible, and stored
-permanently in Vercel Blob when running on Vercel.
-
-For local development, images are stored in the local uploads/ folder.
+- Local development: saves images in uploads/
+- Vercel: saves images permanently in Vercel Blob
 """
 
 import os
@@ -20,9 +18,10 @@ try:
 except ImportError:
     HAS_PILLOW = False
 
+
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "gif"}
 
-# Keep this below Vercel's 4.5 MB server request limit.
+# Must stay below Vercel's 4.5 MB Function request limit.
 MAX_BYTES = 3 * 1024 * 1024
 
 MAX_WIDTH = 1600
@@ -38,14 +37,13 @@ def is_allowed(filename):
 
 def save_upload(file_storage):
     """
-    Validate and save an uploaded image.
+    Save an uploaded image.
 
-    On Vercel:
-        Uploads the image to Vercel Blob and returns its public URL.
+    Local:
+        Returns the local filename.
 
-    Locally:
-        Saves the image inside the local uploads/ folder and returns
-        the local filename.
+    Vercel:
+        Uploads to Vercel Blob and returns the public Blob URL.
     """
 
     if not file_storage or not file_storage.filename:
@@ -67,25 +65,28 @@ def save_upload(file_storage):
     ext = _extension(original_filename)
 
     safe_stem = (
-        secure_filename(original_filename.rsplit(".", 1)[0])[:40]
+        secure_filename(
+            original_filename.rsplit(".", 1)[0]
+        )[:40]
         or "photo"
     )
 
     filename = f"{safe_stem}-{secrets.token_hex(6)}.{ext}"
 
-    # ---------------------------------------------------------
+    # =========================================================
     # VERCEL
-    # ---------------------------------------------------------
+    # =========================================================
+
     if os.environ.get("VERCEL"):
         return _upload_to_vercel_blob(
             file_storage,
-            filename,
-            ext
+            filename
         )
 
-    # ---------------------------------------------------------
-    # LOCAL DEVELOPMENT
-    # ---------------------------------------------------------
+    # =========================================================
+    # LOCAL
+    # =========================================================
+
     upload_folder = current_app.config["UPLOAD_FOLDER"]
 
     os.makedirs(upload_folder, exist_ok=True)
@@ -99,37 +100,32 @@ def save_upload(file_storage):
     return filename
 
 
-def _upload_to_vercel_blob(file_storage, filename, ext):
+def _upload_to_vercel_blob(file_storage, filename):
     """
-    Upload image to Vercel Blob and return the public URL.
+    Upload a file to Vercel Blob.
+
+    Returns the permanent public Blob URL.
     """
 
-    # Save temporarily because the Python Blob SDK accepts bytes/file data.
     temp_path = os.path.join(
         tempfile.gettempdir(),
         filename
     )
 
     try:
+        # Save uploaded file temporarily.
         file_storage.save(temp_path)
 
-        # Import only when running on Vercel.
-        from vercel.blob import BlobClient
+        # Current Vercel Python SDK.
+        from vercel import blob
 
-        with open(temp_path, "rb") as f:
-            file_data = f.read()
-
-        client = BlobClient()
-
-        blob = client.put(
-            f"gallery/{filename}",
-            file_data,
-            access="public",
-            content_type=file_storage.mimetype or f"image/{ext}",
-            add_random_suffix=False,
+        uploaded_file = blob.upload_file(
+            local_path=temp_path,
+            path=f"gallery/{filename}",
+            access="public"
         )
 
-        return blob.url
+        return uploaded_file.url
 
     finally:
         try:
@@ -141,7 +137,7 @@ def _upload_to_vercel_blob(file_storage, filename, ext):
 
 def _optimise(path, ext):
     """
-    Shrink very large photos so the website loads quickly.
+    Shrink very large photos.
     """
 
     if not HAS_PILLOW or ext == "gif":
@@ -165,11 +161,13 @@ def _optimise(path, ext):
 
             if ext in ("jpg", "jpeg"):
                 resized = resized.convert("RGB")
+
                 resized.save(
                     path,
                     quality=85,
                     optimize=True
                 )
+
             else:
                 resized.save(
                     path,
@@ -177,25 +175,21 @@ def _optimise(path, ext):
                 )
 
     except Exception:
-        # Keep original image if optimization fails.
+        # If optimization fails, keep the original image.
         pass
 
 
 def delete_upload(filename):
     """
-    Delete an uploaded image.
+    Delete a local uploaded file.
 
-    Local files are deleted from disk.
-
-    Vercel Blob files are intentionally not deleted here yet because
-    the database currently stores the returned Blob URL rather than
-    a local filename.
+    Blob URLs are left untouched for now.
     """
 
     if not filename:
         return
 
-    # Vercel Blob URLs should not be treated as local files.
+    # Blob URL — don't try to delete it as a local file.
     if filename.startswith("http://") or filename.startswith("https://"):
         return
 
@@ -207,5 +201,6 @@ def delete_upload(filename):
     try:
         if os.path.isfile(path):
             os.remove(path)
+
     except OSError:
         pass
