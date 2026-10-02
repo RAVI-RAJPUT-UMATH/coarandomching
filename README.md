@@ -10,6 +10,7 @@ No React, no build step, no Docker. Two dependencies in total.
 |---|---|
 | **README.md** (this file) | Running the site and using the admin panel |
 | [EXPLANATION.md](EXPLANATION.md) | How the code works, explained piece by piece |
+| [DEPLOY.md](DEPLOY.md) | Putting the site online, step by step |
 | [CLAUDE.md](CLAUDE.md) | Conventions for AI coding assistants |
 
 ---
@@ -194,6 +195,12 @@ Two traps worth knowing before editing the grids:
   holding one card stretches it across the entire row.
 
 ## Deploying
+
+See **[DEPLOY.md](DEPLOY.md)** for a full PythonAnywhere walkthrough.
+
+This app stores its data as files on disk (`database.db` and `uploads/`), so it
+needs a host with a **persistent disk**. Serverless platforms (Vercel, Netlify)
+wipe the filesystem on every cold start and will silently lose all content.
 
 Set these environment variables in production:
 
